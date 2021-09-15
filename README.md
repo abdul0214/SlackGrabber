@@ -8,6 +8,8 @@ Python based script for downloading conversation data from Slack workspace
 - pip install --upgrade setuptools
 - pip install ez_setup
 - pip install virtualenv
+- pip install python-dotenv
+- pip install slack_bolt
 
 - virtualenv grabber
 - grabber\Scripts\activate
