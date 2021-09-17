@@ -5,16 +5,28 @@ import os
 import json
 from pprint import pprint
 import re
-
+import pandas as pd
+import ast
 # import functions
 # Import WebClient from Python SDK (github.com/slackapi/python-slack-sdk)
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 load_dotenv() 
 print(os.environ.get("SLACK_BOT_TOKEN"))
+
+# get basic info about the slack channel to ensure the authentication token works
+def doTestAuth():
+    testAuth = client.auth_test()
+    teamName = testAuth['team']
+    currentUser = testAuth['user']
+    print("Successfully authenticated for team {0} and user {1} ".format(teamName, currentUser))
+    print(testAuth)
+    return testAuth
+
 def mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
 # WebClient insantiates a client that can call API methods
 # When using Bolt, you can use either `app.client` or the `client` passed to listeners.
 client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -35,6 +47,34 @@ def getHistory(channelId):
         else:
             break
     return messages
+
+# fetch all users for the channel and return a map userId -> userName
+def getUserMap(path):
+    # get all users in the slack organization
+    users = client.users_list()['members']
+    userIdNameMap = {} 
+    userColumns = ['id', 'name', 'real-name', 'email']
+    usersDf = pd.DataFrame(columns = userColumns)
+
+    for user in users:
+        email = 'none'
+        try:
+            email = str(user['profile']['email'])
+            newRow = pd.Series([user['id'], user['name'], user['profile']['real_name'], email], index=userColumns)
+            usersDf = usersDf.append(newRow, ignore_index=True)
+        except KeyError as e:
+            print ('no email for ' + user['name'])
+
+        if 'email' in user['profile'].keys():
+        	print(user['profile']['email'])
+
+        userIdNameMap[user['id']] = user['name']
+
+    usersDf.to_csv(path+'/users.csv', sep=',', index=False, encoding='utf-8')
+
+    print("found {0} users ".format(len(users)))
+
+    return userIdNameMap
 
 def mkdir(directory):
     if not os.path.exists(directory):
@@ -81,15 +121,25 @@ def getChannels(path, data):
                 # channelInfo = p.sub('\"', str(channel))
                 # channelInfo = str(channelInfo).replace("\'", "\"")
                 # channelInfo =  json.loads(channelInfo)
-                print("printed ",json.dumps(str(channelInfo)))
+                # print("printed ",json.dumps(str(channelInfo)))
                 json.dump({'channel_info': channelInfo, 'messages': messages}, outFile, indent=4)
             print("messages found in {} are : \n {}".format(channel['name'],conversation_history ))
             logger.info("{} messages found in {}".format(len(conversation_history), channel['name']))
 
 
 try:
+    path = os.environ.get("WORKSPACE_FOLDER_NAME")
     # Call the conversations.list method using the WebClient
-    getChannels(data=client.conversations_list(),path=os.environ.get("WORKSPACE_FOLDER_NAME"))
+    testAuth = doTestAuth()
+    userIdNameMap = getUserMap(path)
+    with open(path+'/metadata.json', 'w') as outFile:
+        print("writing metadata")
+        metadata = {
+            "auth_info":ast.literal_eval(str(testAuth).replace("\'", '\"')),
+            'users': userIdNameMap
+        }
+        json.dump(metadata, outFile, indent=4)
+    # getChannels(data=client.conversations_list(),path=path)
     # for result in client.conversations_list():
     #     if conversation_id is not None:
     #         break
