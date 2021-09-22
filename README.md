@@ -5,9 +5,7 @@ Python based script for downloading conversation data from Slack workspace
 
 Slack App Scopes required to run the application and get all the data. 
 
-![Capture5](https://user-images.githubusercontent.com/23482179/134352816-c72e8b32-279a-44c0-a34a-31ed26d29df1.PNG)
-
-
+![image](https://user-images.githubusercontent.com/23482179/134361917-a47f9a06-2408-463b-b789-7acc9768fe40.png)
 
 ### Steps
 - create a python virtual env
