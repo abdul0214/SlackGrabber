@@ -15,8 +15,10 @@ Slack App Scopes required to run the application and get all the data.
 - .env file should contain following values:
 
         `SLACK_BOT_TOKEN=xoxb-your-bot-token-here`
-
+        `SLACK_SIGNING_SECRET=xoxb-your-bot-secret-here`
         `WORKSPACE_FOLDER_NAME='my_new_folder'`
+
+- copy SlackGrabber.py and app.py to the virtual environment folder (in this case 'grabber')
 
 Install packages as follows OR through `pip install -r packages.txt`
 
@@ -30,7 +32,11 @@ Install packages as follows OR through `pip install -r packages.txt`
 Create and activate virtual environment (on Windows and named 'grabber')
 
 - `virtualenv grabber`
-- `cd grabber`
 - `grabber\Scripts\activate`
 - `python app.py`
 
+Create and activate virtual environment (on Mac and named 'grabber')
+
+- `virtualenv grabber`
+- `source grabber/bin/activate`
+- `python app.py`
