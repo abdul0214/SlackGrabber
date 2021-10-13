@@ -1,4 +1,4 @@
-# BoltSlackGrabber
+# SlackGrabber
 Python based script for downloading conversation and related user data from Slack workspace.
 
 ### Slack App Configuration
